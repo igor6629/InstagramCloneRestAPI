@@ -12,4 +12,6 @@ public interface PostDAO extends JpaRepository<Post, Long> {
     List<Post> findByUser(LocalUser user);
 
     List<Post> findByUserOrderByIdDesc(LocalUser user);
+
+
 }

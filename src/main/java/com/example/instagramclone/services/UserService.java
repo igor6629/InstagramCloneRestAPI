@@ -8,6 +8,8 @@ import com.example.instagramclone.models.LocalUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserService {
 
@@ -25,7 +27,7 @@ public class UserService {
 
     public LocalUser saveUser(RegistrationBody registrationBody) throws UserAlreadyExistException {
 
-        if (userDAO.findByUsernameIgnoreCase(registrationBody.getUsername()).isPresent()
+        if (userDAO.findByUsername(registrationBody.getUsername()).isPresent()
                 || userDAO.findByEmailIgnoreCase(registrationBody.getEmail()).isPresent()) {
             throw new UserAlreadyExistException();
         }
@@ -43,11 +45,15 @@ public class UserService {
 
     public String loginUser(LoginBody loginBody) {
 
-        LocalUser user = userDAO.findByUsernameIgnoreCase(loginBody.getUsername()).orElse(null);
+        LocalUser user = userDAO.findByUsername(loginBody.getUsername()).orElse(null);
 
         if (user != null && encryptionService.verifyPassword(loginBody.getPassword(), user.getPassword()))
             return jwtService.generateJWT(user);
 
         return null;
+    }
+
+    public Optional<LocalUser> getUserByUsername(String username) {
+        return userDAO.findByUsername(username);
     }
 }

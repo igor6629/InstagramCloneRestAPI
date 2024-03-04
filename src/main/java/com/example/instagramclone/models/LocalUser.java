@@ -1,6 +1,10 @@
 package com.example.instagramclone.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "local_user")
@@ -18,6 +22,7 @@ public class LocalUser {
     private String email;
 
     @Column(name = "password", nullable = false)
+    @JsonIgnore
     private String password;
 
     @Column(name = "bio")
@@ -25,6 +30,18 @@ public class LocalUser {
 
     @Column(name = "profile_picture", nullable = false)
     private String profilePicture;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JsonIgnore
+    private List<Post> posts = new ArrayList<>();
+
+    public List<Post> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(List<Post> posts) {
+        this.posts = posts;
+    }
 
     public String getBio() {
         return bio;

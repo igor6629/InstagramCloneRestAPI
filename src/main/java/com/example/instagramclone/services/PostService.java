@@ -33,4 +33,12 @@ public class PostService {
     public List<Post> getAllPosts(LocalUser user) {
         return postDAO.findByUserOrderByIdDesc(user);
     }
+
+    public Post getPostById(long id) {
+        return postDAO.findById(id).orElse(null);
+    }
+
+    public void deletePostById(Long id) {
+        postDAO.deleteById(id);
+    }
 }

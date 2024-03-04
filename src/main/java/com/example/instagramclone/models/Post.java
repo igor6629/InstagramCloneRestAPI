@@ -1,6 +1,7 @@
 package com.example.instagramclone.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
@@ -25,7 +26,7 @@ public class Post {
     @Column(name = "location")
     private String location;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private LocalUser user;
@@ -76,5 +77,10 @@ public class Post {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    @JsonProperty
+    public String getUsername() {
+        return user.getUsername();
     }
 }
