@@ -1,6 +1,7 @@
 package com.example.instagramclone.api.controllers.post;
 
 import com.example.instagramclone.api.models.PostBody;
+import com.example.instagramclone.dao.PostDAO;
 import com.example.instagramclone.models.LocalUser;
 import com.example.instagramclone.models.Post;
 import com.example.instagramclone.services.PostService;
@@ -21,10 +22,12 @@ public class PostController {
 
     private PostService postService;
     private UserService userService;
+    private final PostDAO postDAO;
 
-    public PostController(PostService postService, UserService userService) {
+    public PostController(PostService postService, UserService userService, PostDAO postDAO) {
         this.postService = postService;
         this.userService = userService;
+        this.postDAO = postDAO;
     }
 
     @PostMapping("/add")
@@ -80,6 +83,34 @@ public class PostController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
         postService.deletePostById(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{username}/show/{id}/update")
+    public ResponseEntity<HttpStatus> updatePostById(@AuthenticationPrincipal LocalUser user, @PathVariable("username") String username,
+                                                     @PathVariable("id") Long id, @RequestBody PostBody postBody) {
+
+        if (!Objects.equals(user.getUsername(), username))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+        Post post = postService.getPostById(id);
+
+        if (post == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        if (postBody.getLocation() != null)
+            post.setLocation(postBody.getLocation());
+
+        if (postBody.getCaption() != null)
+            post.setCaption(postBody.getCaption());
+
+        postDAO.save(post);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/like")
+    public ResponseEntity<HttpStatus> likePostById(@AuthenticationPrincipal LocalUser user, @PathVariable("id") Long id) {
+
         return ResponseEntity.ok().build();
     }
 }
