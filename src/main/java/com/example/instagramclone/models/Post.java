@@ -31,6 +31,17 @@ public class Post {
     @JsonIgnore
     private LocalUser user;
 
+    @Column(name = "likes_count")
+    private Integer likesCount;
+
+    public Integer getLikesCount() {
+        return likesCount;
+    }
+
+    public void setLikesCount(Integer likesCount) {
+        this.likesCount = likesCount;
+    }
+
     public String getCaption() {
         return caption;
     }

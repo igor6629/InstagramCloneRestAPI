@@ -4,6 +4,7 @@ import com.example.instagramclone.api.models.PostBody;
 import com.example.instagramclone.dao.PostDAO;
 import com.example.instagramclone.models.LocalUser;
 import com.example.instagramclone.models.Post;
+import com.example.instagramclone.services.LikeService;
 import com.example.instagramclone.services.PostService;
 import com.example.instagramclone.services.UserService;
 import jakarta.validation.Valid;
@@ -22,11 +23,13 @@ public class PostController {
 
     private PostService postService;
     private UserService userService;
+    private LikeService likeService;
     private final PostDAO postDAO;
 
-    public PostController(PostService postService, UserService userService, PostDAO postDAO) {
+    public PostController(PostService postService, UserService userService, LikeService likeService, PostDAO postDAO) {
         this.postService = postService;
         this.userService = userService;
+        this.likeService = likeService;
         this.postDAO = postDAO;
     }
 
@@ -110,6 +113,28 @@ public class PostController {
 
     @PutMapping("/{id}/like")
     public ResponseEntity<HttpStatus> likePostById(@AuthenticationPrincipal LocalUser user, @PathVariable("id") Long id) {
+        Optional<Post> opPost = postDAO.findById(id);
+
+        if (opPost.isPresent()) {
+            Post post = opPost.get();
+            likeService.makeLike(user, id, post);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/unlike")
+    public ResponseEntity<HttpStatus> unlikePostById(@AuthenticationPrincipal LocalUser user, @PathVariable("id") Long id) {
+        Optional<Post> opPost = postDAO.findById(id);
+
+        if (opPost.isPresent()) {
+            Post post = opPost.get();
+            likeService.makeUnlike(user, id, post);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
 
         return ResponseEntity.ok().build();
     }
