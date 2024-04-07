@@ -34,6 +34,17 @@ public class Post {
     @Column(name = "likes_count")
     private Integer likesCount;
 
+    @Column(name = "comments_count")
+    private Integer commentsCount;
+
+    public Integer getCommentsCount() {
+        return commentsCount;
+    }
+
+    public void setCommentsCount(Integer commentsCount) {
+        this.commentsCount = commentsCount;
+    }
+
     public Integer getLikesCount() {
         return likesCount;
     }

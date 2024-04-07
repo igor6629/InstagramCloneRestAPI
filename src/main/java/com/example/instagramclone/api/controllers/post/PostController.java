@@ -1,9 +1,12 @@
 package com.example.instagramclone.api.controllers.post;
 
+import com.example.instagramclone.api.models.CommentBody;
 import com.example.instagramclone.api.models.PostBody;
 import com.example.instagramclone.dao.PostDAO;
+import com.example.instagramclone.models.Comment;
 import com.example.instagramclone.models.LocalUser;
 import com.example.instagramclone.models.Post;
+import com.example.instagramclone.services.CommentService;
 import com.example.instagramclone.services.LikeService;
 import com.example.instagramclone.services.PostService;
 import com.example.instagramclone.services.UserService;
@@ -24,12 +27,14 @@ public class PostController {
     private PostService postService;
     private UserService userService;
     private LikeService likeService;
+    private CommentService commentService;
     private final PostDAO postDAO;
 
-    public PostController(PostService postService, UserService userService, LikeService likeService, PostDAO postDAO) {
+    public PostController(PostService postService, UserService userService, LikeService likeService, CommentService commentService, PostDAO postDAO) {
         this.postService = postService;
         this.userService = userService;
         this.likeService = likeService;
+        this.commentService = commentService;
         this.postDAO = postDAO;
     }
 
@@ -132,6 +137,40 @@ public class PostController {
         if (opPost.isPresent()) {
             Post post = opPost.get();
             likeService.makeUnlike(user, id, post);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{id}/comment")
+    public ResponseEntity<HttpStatus> addComment(@AuthenticationPrincipal LocalUser user, @PathVariable("id") Long id, @RequestBody CommentBody commentBody) {
+        Optional<Post> opPost = postDAO.findById(id);
+
+        if (opPost.isPresent()) {
+            Post post = opPost.get();
+            commentService.addComment(post, user, commentBody.getText());
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}/comment/{id_comment}")
+    public ResponseEntity<HttpStatus> deleteComment(@AuthenticationPrincipal LocalUser user, @PathVariable("id") Long id, @PathVariable("id_comment") Long idComment) {
+        Optional<Post> opPost = postDAO.findById(id);
+
+        if (opPost.isPresent()) {
+            Post post = opPost.get();
+            Comment comment = commentService.getCommentById(idComment);
+
+            if (comment != null && comment.getPost() == post) {
+                commentService.deleteComment(idComment, post);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
