@@ -2,6 +2,7 @@ package com.example.instagramclone.api.controllers.post;
 
 import com.example.instagramclone.api.models.CommentBody;
 import com.example.instagramclone.api.models.PostBody;
+import com.example.instagramclone.api.models.PostResponse;
 import com.example.instagramclone.dao.PostDAO;
 import com.example.instagramclone.models.Comment;
 import com.example.instagramclone.models.LocalUser;
@@ -57,7 +58,7 @@ public class PostController {
     }
 
     @GetMapping("/{username}/show")
-    public ResponseEntity<List<Post>> getPosts(@AuthenticationPrincipal LocalUser localUser, @PathVariable("username") String username) {
+    public ResponseEntity<List<PostResponse>> getPosts(@AuthenticationPrincipal LocalUser localUser, @PathVariable("username") String username) {
         Optional<LocalUser> opUser = userService.getUserByUsername(username);
 
         if (opUser.isPresent()) {

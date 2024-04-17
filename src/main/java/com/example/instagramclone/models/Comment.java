@@ -1,5 +1,7 @@
 package com.example.instagramclone.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
@@ -14,10 +16,12 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "post_id")
+    @JsonIgnore
     private Post post;
 
     @ManyToOne
     @JoinColumn(name = "local_user_id")
+    @JsonIgnore
     private LocalUser localUser;
 
     @Column(name = "text", nullable = false)
@@ -25,6 +29,11 @@ public class Comment {
 
     @Column(name = "creation_timestamp", nullable = false)
     private Timestamp creationTimestamp;
+
+    @JsonProperty
+    public String getUsername() {
+        return localUser.getUsername();
+    }
 
     public Timestamp getCreationTimestamp() {
         return creationTimestamp;

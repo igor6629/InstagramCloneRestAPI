@@ -1,5 +1,7 @@
 package com.example.instagramclone.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
@@ -10,14 +12,17 @@ public class LikeCount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
+    @JsonIgnore
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "post_id")
+    @JsonIgnore
     private Post post;
 
     @ManyToOne
     @JoinColumn(name = "local_user_id")
+    @JsonIgnore
     private LocalUser localUser;
 
     @Column(name = "creation_timestamp", nullable = false)
@@ -49,5 +54,10 @@ public class LikeCount {
 
     public void setPost(Post post) {
         this.post = post;
+    }
+
+    @JsonProperty
+    public String getUsername() {
+        return localUser.getUsername();
     }
 }

@@ -39,6 +39,8 @@ public class UserService {
         user.setPassword(encryptionService.encryptPassword(registrationBody.getPassword()));
         user.setBio(registrationBody.getBio());
         user.setProfilePicture(registrationBody.getProfilePicture());
+        user.setFollowing(0);
+        user.setFollowers(0);
 
         return userDAO.save(user);
     }

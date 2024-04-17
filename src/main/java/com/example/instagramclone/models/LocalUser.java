@@ -35,6 +35,28 @@ public class LocalUser {
     @JsonIgnore
     private List<Post> posts = new ArrayList<>();
 
+    @Column(name = "following")
+    private Integer following;
+
+    @Column(name = "followers")
+    private Integer followers;
+
+    public Integer getFollowing() {
+        return following;
+    }
+
+    public void setFollowing(Integer following) {
+        this.following = following;
+    }
+
+    public Integer getFollowers() {
+        return followers;
+    }
+
+    public void setFollowers(Integer followers) {
+        this.followers = followers;
+    }
+
     public List<Post> getPosts() {
         return posts;
     }

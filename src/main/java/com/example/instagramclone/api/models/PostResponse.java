@@ -1,16 +1,13 @@
-package com.example.instagramclone.models;
+package com.example.instagramclone.api.models;
 
+import com.example.instagramclone.models.LocalUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 
-@Entity
-@Table(name = "post")
-public class Post {
+public class PostResponse {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -38,30 +35,6 @@ public class Post {
 
     @Column(name = "comments_count")
     private Integer commentsCount;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "post")
-    @OrderBy("id DESC")
-    private List<Comment> comments = new ArrayList<>();
-
-    @OneToMany(mappedBy = "post")
-    @OrderBy("id DESC")
-    private List<LikeCount> likeCounts = new ArrayList<>();
-
-    public List<LikeCount> getLikeCounts() {
-        return likeCounts;
-    }
-
-    public void setLikeCounts(List<LikeCount> likeCounts) {
-        this.likeCounts = likeCounts;
-    }
-
-    public List<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
 
     public Integer getCommentsCount() {
         return commentsCount;
