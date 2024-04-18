@@ -14,4 +14,5 @@ public interface SubscriptionDAO extends JpaRepository<Subscription, Long> {
     Optional<Subscription> findByLocalUserAndFollowingUser(LocalUser localUser, LocalUser followingUser);
     List<Subscription> findByLocalUserOrderByIdDesc(LocalUser localUser);
     List<Subscription> findByFollowingUserOrderByIdDesc(LocalUser followingUser);
+    boolean existsByLocalUserAndFollowingUser(LocalUser localUser, LocalUser followingUser);
 }

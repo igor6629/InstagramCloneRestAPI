@@ -72,27 +72,17 @@ public class SubscriptionService {
     }
 
     public List<SubscriptionResponse> getMutualFollowers(LocalUser user1, LocalUser user2) {
-        List<Subscription> user1Sub = subscriptionDAO.findByFollowingUserOrderByIdDesc(user1);
-        List<Subscription> user2Sub = subscriptionDAO.findByFollowingUserOrderByIdDesc(user2);
-        List<Subscription> mutual = new ArrayList<>();
-        Map<LocalUser, Subscription> map = new HashMap<>();
+        List<Subscription> user1Sub = subscriptionDAO.findByLocalUserOrderByIdDesc(user1);
+        List<SubscriptionResponse> mutual = new ArrayList<>();
 
         for (Subscription sub : user1Sub) {
-            map.put(sub.getLocalUser(), sub);
-        }
+            LocalUser user = sub.getFollowingUser();
 
-        for (Subscription sub : user2Sub) {
-            if (map.containsKey(sub.getLocalUser())) {
-                mutual.add(sub);
+            if (subscriptionDAO.existsByLocalUserAndFollowingUser(user, user2)) {
+                mutual.add(new SubscriptionResponse(user.getUsername(), user.getBio()));
             }
         }
 
-        List<SubscriptionResponse> response = new ArrayList<>();
-
-        for (Subscription subscription: mutual) {
-            response.add(new SubscriptionResponse(subscription.getLocalUser().getUsername(), subscription.getLocalUser().getBio()));
-        }
-
-        return response;
+        return mutual;
     }
 }

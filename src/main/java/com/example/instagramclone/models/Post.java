@@ -39,11 +39,11 @@ public class Post {
     @Column(name = "comments_count")
     private Integer commentsCount;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "post")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "post", cascade = CascadeType.REMOVE)
     @OrderBy("id DESC")
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     @OrderBy("id DESC")
     private List<LikeCount> likeCounts = new ArrayList<>();
 
