@@ -12,7 +12,6 @@ import java.util.Date;
 
 @Service
 public class JWTService {
-
     /** The secret key to encrypt the JWTs with. */
     @Value("${jwt.algorithm.key}")
     private String algorithmKey;

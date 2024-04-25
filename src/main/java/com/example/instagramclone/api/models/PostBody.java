@@ -5,15 +5,14 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public class PostBody {
-
-    @NotBlank
+    @NotBlank(message = "dataUrl should not be null")
     @NotNull(message = "dataUrl should not be null")
     @Size(min = 5, message = "Data URL should be more than 5 characters")
-    String dataUrl;
+    private String dataUrl;
 
-    String caption;
+    private String caption;
 
-    String location;
+    private String location;
 
     public String getDataUrl() {
         return dataUrl;

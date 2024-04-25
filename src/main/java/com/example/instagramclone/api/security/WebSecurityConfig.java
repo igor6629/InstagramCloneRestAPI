@@ -8,7 +8,6 @@ import org.springframework.security.web.access.intercept.AuthorizationFilter;
 
 @Configuration
 public class WebSecurityConfig {
-
     private JWTRequestFilter jwtRequestFilter;
 
     public WebSecurityConfig(JWTRequestFilter jwtRequestFilter) {
@@ -22,6 +21,7 @@ public class WebSecurityConfig {
         http.authorizeHttpRequests()
                 .requestMatchers("auth/registration", "auth/login", "error").permitAll()
                 .anyRequest().authenticated();
+
         return http.build();
     }
 }

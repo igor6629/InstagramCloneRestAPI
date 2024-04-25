@@ -3,7 +3,7 @@ package com.example.instagramclone.api.controllers.post;
 import com.example.instagramclone.api.models.CommentBody;
 import com.example.instagramclone.api.models.PostBody;
 import com.example.instagramclone.api.models.PostResponse;
-import com.example.instagramclone.dao.PostDAO;
+import com.example.instagramclone.api.models.UpdatePostBody;
 import com.example.instagramclone.models.Comment;
 import com.example.instagramclone.models.LocalUser;
 import com.example.instagramclone.models.Post;
@@ -11,12 +11,12 @@ import com.example.instagramclone.services.CommentService;
 import com.example.instagramclone.services.LikeService;
 import com.example.instagramclone.services.PostService;
 import com.example.instagramclone.services.UserService;
+import com.example.instagramclone.util.Util;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -24,49 +24,37 @@ import java.util.*;
 @RestController
 @RequestMapping("/post")
 public class PostController {
+    private final PostService postService;
+    private final UserService userService;
+    private final LikeService likeService;
+    private final CommentService commentService;
 
-    private PostService postService;
-    private UserService userService;
-    private LikeService likeService;
-    private CommentService commentService;
-    private final PostDAO postDAO;
-
-    public PostController(PostService postService, UserService userService, LikeService likeService, CommentService commentService, PostDAO postDAO) {
+    public PostController(PostService postService, UserService userService, LikeService likeService, CommentService commentService) {
         this.postService = postService;
         this.userService = userService;
         this.likeService = likeService;
         this.commentService = commentService;
-        this.postDAO = postDAO;
     }
 
     @PostMapping("/add")
-    public ResponseEntity addPost(@AuthenticationPrincipal LocalUser user, @Valid @RequestBody PostBody postBody, BindingResult bindingResult) {
-
+    public ResponseEntity<Map<String, String>> addPost(@AuthenticationPrincipal LocalUser user,
+                                                       @Valid @RequestBody PostBody postBody, BindingResult bindingResult) {
         if (bindingResult.hasErrors())
-        {
-            Map<String, String> errors = new HashMap<>();
-
-            for (FieldError error : bindingResult.getFieldErrors()) {
-                errors.put(error.getField(), error.getDefaultMessage());
-            }
-
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
-        }
+            return Util.getErrors(bindingResult);
 
         postService.createPost(postBody, user);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{username}/show")
-    public ResponseEntity<List<PostResponse>> getPosts(@AuthenticationPrincipal LocalUser localUser, @PathVariable("username") String username) {
-        Optional<LocalUser> opUser = userService.getUserByUsername(username);
+    public ResponseEntity<List<PostResponse>> getPosts(@AuthenticationPrincipal LocalUser localUser,
+                                                       @PathVariable("username") String username) {
+        LocalUser user = userService.getUserByUsername(username);
 
-        if (opUser.isPresent()) {
-            LocalUser user = opUser.get();
-            return ResponseEntity.ok(postService.getAllPosts(user));
-        }
+        if (user == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        return ResponseEntity.ok(postService.getAllPosts(user));
     }
 
     @GetMapping("/{id}")
@@ -79,99 +67,85 @@ public class PostController {
         return ResponseEntity.ok(post);
     }
 
-    @DeleteMapping("/{username}/show/{id}")
-    public ResponseEntity<HttpStatus> deletePostById(@AuthenticationPrincipal LocalUser user,
-                                                     @PathVariable("username") String username, @PathVariable("id") Long id) {
-
-        if (!Objects.equals(user.getUsername(), username))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<HttpStatus> deletePostById(@AuthenticationPrincipal LocalUser user, @PathVariable("id") Long id) {
         Post post = postService.getPostById(id);
 
         if (post == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        if (!Objects.equals(post.getUser().getUsername(), user.getUsername()))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         postService.deletePostById(id);
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/{username}/show/{id}/update")
-    public ResponseEntity<HttpStatus> updatePostById(@AuthenticationPrincipal LocalUser user, @PathVariable("username") String username,
-                                                     @PathVariable("id") Long id, @RequestBody PostBody postBody) {
+    @PatchMapping("/{id}/update")
+    public ResponseEntity<HttpStatus> updatePostById(@AuthenticationPrincipal LocalUser user, @PathVariable("id") Long id,
+                                                     @RequestBody UpdatePostBody updatePostBody) {
+        Post post = postService.getPostById(id);
 
-        if (!Objects.equals(user.getUsername(), username))
+        if (post == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        if (!Objects.equals(post.getUser().getUsername(), user.getUsername()))
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+        postService.updatePost(post, updatePostBody);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/like")
+    public ResponseEntity<HttpStatus> likePostById(@AuthenticationPrincipal LocalUser user, @PathVariable("id") Long id) {
+        Post post = postService.getPostById(id);
+
+        if (post == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        likeService.makeLike(user, post);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/unlike")
+    public ResponseEntity<HttpStatus> unlikePostById(@AuthenticationPrincipal LocalUser user, @PathVariable("id") Long id) {
+        Post post = postService.getPostById(id);
+
+        if (post == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        likeService.makeUnlike(user, id, post);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{id}/comment")
+    public ResponseEntity<Map<String, String>> addComment(@AuthenticationPrincipal LocalUser user, @PathVariable("id") Long id,
+                                                 @Valid @RequestBody CommentBody commentBody, BindingResult bindingResult) {
+        if (bindingResult.hasErrors())
+            return Util.getErrors(bindingResult);
 
         Post post = postService.getPostById(id);
 
         if (post == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
-        if (postBody.getLocation() != null)
-            post.setLocation(postBody.getLocation());
-
-        if (postBody.getCaption() != null)
-            post.setCaption(postBody.getCaption());
-
-        postDAO.save(post);
-        return ResponseEntity.ok().build();
-    }
-
-    @PutMapping("/{id}/like")
-    public ResponseEntity<HttpStatus> likePostById(@AuthenticationPrincipal LocalUser user, @PathVariable("id") Long id) {
-        Optional<Post> opPost = postDAO.findById(id);
-
-        if (opPost.isPresent()) {
-            Post post = opPost.get();
-            likeService.makeLike(user, id, post);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-
-        return ResponseEntity.ok().build();
-    }
-
-    @PutMapping("/{id}/unlike")
-    public ResponseEntity<HttpStatus> unlikePostById(@AuthenticationPrincipal LocalUser user, @PathVariable("id") Long id) {
-        Optional<Post> opPost = postDAO.findById(id);
-
-        if (opPost.isPresent()) {
-            Post post = opPost.get();
-            likeService.makeUnlike(user, id, post);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-
-        return ResponseEntity.ok().build();
-    }
-
-    @PatchMapping("/{id}/comment")
-    public ResponseEntity<HttpStatus> addComment(@AuthenticationPrincipal LocalUser user, @PathVariable("id") Long id, @RequestBody CommentBody commentBody) {
-        Optional<Post> opPost = postDAO.findById(id);
-
-        if (opPost.isPresent()) {
-            Post post = opPost.get();
-            commentService.addComment(post, user, commentBody.getText());
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-
+        commentService.addComment(post, user, commentBody.getComment());
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}/comment/{id_comment}")
-    public ResponseEntity<HttpStatus> deleteComment(@AuthenticationPrincipal LocalUser user, @PathVariable("id") Long id, @PathVariable("id_comment") Long idComment) {
-        Optional<Post> opPost = postDAO.findById(id);
+    public ResponseEntity<HttpStatus> deleteComment(@AuthenticationPrincipal LocalUser user, @PathVariable("id") Long id,
+                                                    @PathVariable("id_comment") Long idComment) {
+        Post post = postService.getPostById(id);
+        Comment comment = commentService.getCommentById(idComment);
 
-        if (opPost.isPresent()) {
-            Post post = opPost.get();
-            Comment comment = commentService.getCommentById(idComment);
-
-            if (comment != null && comment.getPost() == post) {
-                commentService.deleteComment(idComment, post);
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        if (post != null && comment != null && comment.getPost() == post) {
+            if (!Objects.equals(post.getUser().getUsername(), user.getUsername())
+                    && !Objects.equals(comment.getLocalUser().getUsername(), user.getUsername())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
+
+            commentService.deleteComment(idComment, post);
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }

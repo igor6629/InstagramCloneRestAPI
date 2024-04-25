@@ -4,12 +4,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public class LoginBody {
-
-    @NotBlank
+    @NotBlank(message = "username should not be null")
     @NotNull(message = "username should not be null")
     private String username;
 
-    @NotBlank
+    @NotBlank(message = "password should not be null")
     @NotNull(message = "password should not be null")
     private String password;
 

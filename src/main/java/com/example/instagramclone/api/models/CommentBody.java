@@ -2,17 +2,18 @@ package com.example.instagramclone.api.models;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public class CommentBody {
-    @NotBlank
-    @NotNull(message = "text should not be empty")
-    private String text;
+    @NotBlank(message = "comment should not be empty")
+    @NotNull(message = "comment should not be empty")
+    private String comment;
 
-    public String getText() {
-        return text;
+    public String getComment() {
+        return comment;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }

@@ -2,6 +2,7 @@ package com.example.instagramclone.services;
 
 import com.example.instagramclone.api.models.PostBody;
 import com.example.instagramclone.api.models.PostResponse;
+import com.example.instagramclone.api.models.UpdatePostBody;
 import com.example.instagramclone.dao.PostDAO;
 import com.example.instagramclone.dao.SubscriptionDAO;
 import com.example.instagramclone.models.LocalUser;
@@ -19,7 +20,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class PostService {
-
     private final PostDAO postDAO;
     private final SubscriptionDAO subscriptionDAO;
     private final ModelMapper modelMapper;
@@ -41,6 +41,16 @@ public class PostService {
         post.setCreationTimestamp(new Timestamp(System.currentTimeMillis()));
         post.setCommentsCount(0);
         post.setLikesCount(0);
+
+        postDAO.save(post);
+    }
+
+    public void updatePost(Post post, UpdatePostBody postBody) {
+        if (postBody.getLocation() != null)
+            post.setLocation(postBody.getLocation());
+
+        if (postBody.getCaption() != null)
+            post.setCaption(postBody.getCaption());
 
         postDAO.save(post);
     }

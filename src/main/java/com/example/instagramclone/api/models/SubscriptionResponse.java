@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 
 public class SubscriptionResponse {
-
     private String username;
     private String bio;
 

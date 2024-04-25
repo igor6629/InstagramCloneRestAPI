@@ -1,39 +1,18 @@
 package com.example.instagramclone.api.models;
 
 import com.example.instagramclone.models.LocalUser;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
 
 import java.sql.Timestamp;
 
 public class PostResponse {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
     private Long id;
-
-    @Column(name = "data_url", nullable = false)
     private String dataUrl;
-
-    @Column(name = "caption")
     private String caption;
-
-    @Column(name = "creation_timestamp", nullable = false)
     private Timestamp creationTimestamp;
-
-    @Column(name = "location")
     private String location;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    @JsonIgnore
     private LocalUser user;
-
-    @Column(name = "likes_count")
     private Integer likesCount;
-
-    @Column(name = "comments_count")
     private Integer commentsCount;
 
     public Integer getCommentsCount() {

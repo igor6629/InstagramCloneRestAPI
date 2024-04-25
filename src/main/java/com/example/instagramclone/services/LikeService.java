@@ -8,11 +8,9 @@ import com.example.instagramclone.models.Post;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.Optional;
 
 @Service
 public class LikeService {
-
     private final LikeDAO likeDAO;
     private final PostDAO postDAO;
 
@@ -21,7 +19,7 @@ public class LikeService {
         this.postDAO = postDAO;
     }
 
-    public void makeLike(LocalUser user, Long postId, Post post) {
+    public void makeLike(LocalUser user, Post post) {
         if (likeDAO.findByPostAndLocalUser(post, user).isPresent())
             return;
 
@@ -37,13 +35,11 @@ public class LikeService {
     }
 
     public void makeUnlike(LocalUser user, Long postId, Post post) {
-        Optional<LikeCount> opLike = likeDAO.findByPostAndLocalUser(post, user);
+        LikeCount like = likeDAO.findByPostAndLocalUser(post, user).orElse(null);
 
-        if (opLike.isPresent()) {
-            LikeCount like = opLike.get();
-            likeDAO.delete(like);
-
+        if (like != null) {
             post.setLikesCount(post.getLikesCount() - 1);
+            likeDAO.delete(like);
             postDAO.save(post);
         }
     }

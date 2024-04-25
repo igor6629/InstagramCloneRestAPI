@@ -3,24 +3,26 @@ package com.example.instagramclone.api.models;
 import jakarta.validation.constraints.*;
 
 public class RegistrationBody {
-
     @Size(min = 3, max = 20, message = "Username should be between 3 and 20 characters")
-    @NotBlank
+    @NotBlank(message = "username should not be null")
     @NotNull(message = "username should not be null")
     private String username;
 
     @Email(message = "Email should be valid")
-    @NotBlank
+    @NotBlank(message = "email should not be null")
     @NotNull(message = "email should not be null")
     private String email;
 
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$", message = "Password should contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number")
-    @NotBlank
+    @NotBlank(message = "password should not be null")
     @NotNull(message = "password should not be null")
     private String password;
+
     private String bio;
 
     @Size(min = 5, message = "Profile picture URL should be more than 5 characters")
+    @NotBlank(message = "profilePicture should not be null")
+    @NotNull(message = "profilePicture should not be null")
     private String profilePicture;
 
     public String getUsername() {

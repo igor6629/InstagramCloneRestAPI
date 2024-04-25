@@ -11,8 +11,7 @@ import java.util.List;
 
 @RestController
 public class MainController {
-
-    private PostService postService;
+    private final PostService postService;
 
     public MainController(PostService postService) {
         this.postService = postService;

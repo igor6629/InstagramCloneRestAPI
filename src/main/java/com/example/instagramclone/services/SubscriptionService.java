@@ -9,18 +9,15 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class SubscriptionService {
     private final SubscriptionDAO subscriptionDAO;
     private final UserDAO userDAO;
-    private final ModelMapper modelMapper;
 
     public SubscriptionService(SubscriptionDAO subscriptionDAO, UserDAO userDAO, ModelMapper modelMapper) {
         this.subscriptionDAO = subscriptionDAO;
         this.userDAO = userDAO;
-        this.modelMapper = modelMapper;
     }
 
     public void follow(LocalUser localUser, LocalUser followingUser) {
@@ -40,12 +37,12 @@ public class SubscriptionService {
     }
 
     public void unfollow(LocalUser localUser, LocalUser followingUser) {
-        Optional<Subscription> opSub = subscriptionDAO.findByLocalUserAndFollowingUser(localUser, followingUser);
+        Subscription sub = subscriptionDAO.findByLocalUserAndFollowingUser(localUser, followingUser).orElse(null);
 
-        if (opSub.isPresent()) {
+        if (sub != null) {
             localUser.setFollowing(localUser.getFollowing() - 1);
             followingUser.setFollowers(followingUser.getFollowers() - 1);
-            subscriptionDAO.delete(opSub.get());
+            subscriptionDAO.delete(sub);
         }
     }
 

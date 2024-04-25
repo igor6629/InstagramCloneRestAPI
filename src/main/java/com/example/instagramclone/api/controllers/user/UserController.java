@@ -16,7 +16,6 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/user")
 public class UserController {
-
     private final UserService userService;
     private final SubscriptionService subscriptionService;
 
@@ -28,88 +27,77 @@ public class UserController {
     @PutMapping("/{username}/follow")
     public ResponseEntity<HttpStatus> followUser(@AuthenticationPrincipal LocalUser user,
                                                    @PathVariable("username") String username) {
-
         if (Objects.equals(user.getUsername(), username))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
-        Optional<LocalUser> opFollowingUser = userService.getUserByUsername(username);
+        LocalUser followingUser = userService.getUserByUsername(username);
 
-        if (opFollowingUser.isPresent()) {
-            LocalUser followingUser = opFollowingUser.get();
-            subscriptionService.follow(user, followingUser);
-        } else {
+        if (followingUser == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
 
+        subscriptionService.follow(user, followingUser);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{username}/unfollow")
     public ResponseEntity<HttpStatus> unfollowUser(@AuthenticationPrincipal LocalUser user,
                                                    @PathVariable("username") String username) {
-
         if (Objects.equals(user.getUsername(), username))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
-        Optional<LocalUser> opFollowingUser = userService.getUserByUsername(username);
+        LocalUser followingUser = userService.getUserByUsername(username);
 
-        if (opFollowingUser.isPresent()) {
-            LocalUser followingUser = opFollowingUser.get();
-            subscriptionService.unfollow(user, followingUser);
-        } else {
+        if (followingUser == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
 
+        subscriptionService.unfollow(user, followingUser);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{username}")
-    public ResponseEntity<LocalUser> getUserProfile(@AuthenticationPrincipal LocalUser user,
+    public ResponseEntity<LocalUser> getUserProfile(@AuthenticationPrincipal LocalUser localUser,
                                                      @PathVariable("username") String username) {
+        LocalUser user = userService.getUserByUsername(username);
 
-        Optional<LocalUser> opUser = userService.getUserByUsername(username);
-        return opUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+        if (user == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/{username}/following")
-    public ResponseEntity<List<SubscriptionResponse>> getUserFollowing(@AuthenticationPrincipal LocalUser user,
+    public ResponseEntity<List<SubscriptionResponse>> getUserFollowing(@AuthenticationPrincipal LocalUser localUser,
                                                                        @PathVariable("username") String username) {
+        LocalUser user = userService.getUserByUsername(username);
 
-        Optional<LocalUser> opFollowingUser = userService.getUserByUsername(username);
-
-        if (opFollowingUser.isPresent()) {
-            return ResponseEntity.ok(subscriptionService.getFollowings(opFollowingUser.get()));
-        } else {
+        if (user == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+
+        return ResponseEntity.ok(subscriptionService.getFollowings(user));
     }
 
     @GetMapping("/{username}/followers")
-    public ResponseEntity<List<SubscriptionResponse>> getUserFollowers(@AuthenticationPrincipal LocalUser user,
+    public ResponseEntity<List<SubscriptionResponse>> getUserFollowers(@AuthenticationPrincipal LocalUser localUser,
                                                                        @PathVariable("username") String username) {
+        LocalUser user = userService.getUserByUsername(username);
 
-        Optional<LocalUser> opUser = userService.getUserByUsername(username);
-
-        if (opUser.isPresent()) {
-            return ResponseEntity.ok(subscriptionService.getFollowers(opUser.get()));
-        } else {
+        if (user == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+
+        return ResponseEntity.ok(subscriptionService.getFollowers(user));
     }
 
     @GetMapping("/{username}/mutual")
-    public ResponseEntity<List<SubscriptionResponse>> getUserMutualFollowers(@AuthenticationPrincipal LocalUser user,
+    public ResponseEntity<List<SubscriptionResponse>> getUserMutualFollowers(@AuthenticationPrincipal LocalUser localUser,
                                                                              @PathVariable("username") String username) {
-
-        if (Objects.equals(user.getUsername(), username))
+        if (Objects.equals(localUser.getUsername(), username))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
-        Optional<LocalUser> opUser = userService.getUserByUsername(username);
+        LocalUser user = userService.getUserByUsername(username);
 
-        if (opUser.isPresent()) {
-            return ResponseEntity.ok(subscriptionService.getMutualFollowers(user, opUser.get()));
-        } else {
+        if (user == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+
+        return ResponseEntity.ok(subscriptionService.getMutualFollowers(localUser, user));
     }
 }

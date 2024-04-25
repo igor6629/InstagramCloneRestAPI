@@ -1,6 +1,7 @@
 package com.example.instagramclone.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -9,7 +10,6 @@ import java.util.List;
 @Entity
 @Table(name = "local_user")
 public class LocalUser {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -111,5 +111,10 @@ public class LocalUser {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    @JsonProperty
+    public int getPostsCount() {
+        return posts.size();
     }
 }

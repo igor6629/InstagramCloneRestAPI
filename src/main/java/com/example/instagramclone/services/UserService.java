@@ -12,7 +12,6 @@ import java.util.Optional;
 
 @Service
 public class UserService {
-
     private final UserDAO userDAO;
     private final EncryptionService encryptionService;
     private final JWTService jwtService;
@@ -24,9 +23,7 @@ public class UserService {
         this.jwtService = jwtService;
     }
 
-
-    public LocalUser saveUser(RegistrationBody registrationBody) throws UserAlreadyExistException {
-
+    public void saveUser(RegistrationBody registrationBody) throws UserAlreadyExistException {
         if (userDAO.findByUsername(registrationBody.getUsername()).isPresent()
                 || userDAO.findByEmailIgnoreCase(registrationBody.getEmail()).isPresent()) {
             throw new UserAlreadyExistException();
@@ -42,11 +39,10 @@ public class UserService {
         user.setFollowing(0);
         user.setFollowers(0);
 
-        return userDAO.save(user);
+        userDAO.save(user);
     }
 
     public String loginUser(LoginBody loginBody) {
-
         LocalUser user = userDAO.findByUsername(loginBody.getUsername()).orElse(null);
 
         if (user != null && encryptionService.verifyPassword(loginBody.getPassword(), user.getPassword()))
@@ -55,7 +51,7 @@ public class UserService {
         return null;
     }
 
-    public Optional<LocalUser> getUserByUsername(String username) {
-        return userDAO.findByUsername(username);
+    public LocalUser getUserByUsername(String username) {
+        return userDAO.findByUsername(username).orElse(null);
     }
 }

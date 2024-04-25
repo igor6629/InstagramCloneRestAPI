@@ -9,7 +9,5 @@ import java.util.Optional;
 @Repository
 public interface UserDAO extends JpaRepository<LocalUser, Long> {
     Optional<LocalUser> findByUsername(String username);
-
     Optional<LocalUser> findByEmailIgnoreCase(String email);
-
 }
