@@ -31,7 +31,7 @@ public class LocalUser {
     @Column(name = "profile_picture", nullable = false)
     private String profilePicture;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JsonIgnore
     private List<Post> posts = new ArrayList<>();
 

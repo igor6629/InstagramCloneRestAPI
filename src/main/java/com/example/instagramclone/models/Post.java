@@ -131,4 +131,9 @@ public class Post {
     public String getUsername() {
         return user.getUsername();
     }
+
+    @JsonIgnore
+    public void setUsername(String username) {
+        this.user.setUsername(username);
+    }
 }

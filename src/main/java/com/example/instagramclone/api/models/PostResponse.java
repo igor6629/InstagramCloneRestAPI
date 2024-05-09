@@ -1,6 +1,7 @@
 package com.example.instagramclone.api.models;
 
 import com.example.instagramclone.models.LocalUser;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.sql.Timestamp;
@@ -11,9 +12,15 @@ public class PostResponse {
     private String caption;
     private Timestamp creationTimestamp;
     private String location;
+
+    @JsonIgnore
     private LocalUser user;
+
     private Integer likesCount;
     private Integer commentsCount;
+
+    @JsonIgnore
+    private String username;
 
     public Integer getCommentsCount() {
         return commentsCount;
@@ -81,6 +88,10 @@ public class PostResponse {
 
     @JsonProperty
     public String getUsername() {
-        return user.getUsername();
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

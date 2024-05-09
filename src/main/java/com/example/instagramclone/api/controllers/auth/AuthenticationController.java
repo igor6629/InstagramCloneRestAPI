@@ -37,7 +37,7 @@ public class AuthenticationController {
             userService.saveUser(registrationBody);
             return ResponseEntity.ok().build();
         } catch (UserAlreadyExistException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(
                     new HashMap<>(){{put("Error:", "User with this username or email is already exist");}}
             );
         }

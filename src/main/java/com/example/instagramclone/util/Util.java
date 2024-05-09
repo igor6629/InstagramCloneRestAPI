@@ -10,7 +10,6 @@ import java.util.Map;
 
 public class Util {
     public static ResponseEntity<Map<String, String>> getErrors(BindingResult bindingResult) {
-        System.out.println("Hello");
         Map<String, String> errors = new HashMap<>();
 
         for (FieldError error : bindingResult.getFieldErrors()) {
