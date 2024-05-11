@@ -35,6 +35,9 @@ public class LocalUser {
     @JsonIgnore
     private List<Post> posts = new ArrayList<>();
 
+    @JsonIgnore
+    private Integer postsCount;
+
     @Column(name = "following")
     private Integer following;
 
@@ -116,5 +119,9 @@ public class LocalUser {
     @JsonProperty
     public int getPostsCount() {
         return posts.size();
+    }
+
+    public void setPostsCount(Integer postsCount) {
+        this.postsCount = postsCount;
     }
 }
